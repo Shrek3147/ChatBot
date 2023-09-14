@@ -1,10 +1,18 @@
 import streamlit as st
 import replicate
 import os
+from PIL import Image
 
 # App title
 st.set_page_config(page_title="Medicinal Herb bot")
 
+st.title("Herb Classifier")
+
+uploaded_image = st.file_uploader("Upload an image", type=["jpg", "jpeg", "png"])
+
+if uploaded_image is not None:
+    image = Image.open(uploaded_image)
+    st.image(image, use_column_width=True)
 
 # Replicate Credentials
 with st.sidebar:
@@ -19,7 +27,6 @@ with st.sidebar:
         else:
             st.success('Proceed to entering your prompt message!', icon='👉')
 
-    # Refactored from https://github.com/a16z-infra/llama2-chatbot
     st.subheader('Models and parameters')
     selected_model = st.sidebar.selectbox('Choose a Llama2 model', ['Llama2-7B', 'Llama2-13B', 'Llama2-70B'], key='selected_model')
     if selected_model == 'Llama2-7B':
@@ -37,7 +44,7 @@ os.environ['REPLICATE_API_TOKEN'] = replicate_api
 
 # Store LLM generated responses
 if "messages" not in st.session_state.keys():
-    st.session_state.messages = [{"role": "assistant", "content": "Hello, Im Oregano a medicinal herb expert, How may I assist you today?"}]
+    st.session_state.messages = [{"role": "assistant", "content": "Hello, I'm Oregano, a medicinal herb expert. How may I assist you today?"}]
 
 # Display or clear chat messages
 for message in st.session_state.messages:
@@ -50,7 +57,7 @@ st.sidebar.button('Clear Chat History', on_click=clear_chat_history)
 
 # Function for generating LLaMA2 response
 def generate_llama2_response(prompt_input):
-    string_dialogue = "You are a helpful assistant  medicinal herb expert. You do not respond as 'User' or pretend to be 'User'. You only respond once as 'Assistant'."
+    string_dialogue = "You are a helpful assistant. You do not respond as 'User' or pretend to be 'User'. You only respond once as 'Assistant'."
     for dict_message in st.session_state.messages:
         if dict_message["role"] == "user":
             string_dialogue += "User: " + dict_message["content"] + "\n\n"
